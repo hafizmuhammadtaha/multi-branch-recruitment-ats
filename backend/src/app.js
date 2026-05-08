@@ -1,12 +1,18 @@
 const express = require('express');
 const cors = require('cors');
+const errorHandler = require('./middleware/error.middleware');
+const authRoutes = require('./routes/auth.routes');
+
 const app = express();
 
+// Standard Production Middleware
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('API is running...');
-});
+// API Routes
+app.use('/api/auth', authRoutes);
 
-module.exports = app; // CRITICAL: This is what server.js needs
+// Global Error Handler (Must be last)
+app.use(errorHandler);
+
+module.exports = app;
