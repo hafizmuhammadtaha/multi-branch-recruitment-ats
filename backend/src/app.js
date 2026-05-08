@@ -1,18 +1,22 @@
 const express = require('express');
 const cors = require('cors');
 const errorHandler = require('./middleware/error.middleware');
+
+// Import Routes
 const authRoutes = require('./routes/auth.routes');
+const branchRoutes = require('./routes/branch.routes');
+const jobRoutes = require('./routes/job.routes');
 
 const app = express();
 
-// Standard Production Middleware
+// Middleware
 app.use(cors());
 app.use(express.json());
 
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/branches', require('./routes/branch.routes'));
-app.use('/api/jobs', require('./routes/job.routes'));
+app.use('/api/branches', branchRoutes);
+app.use('/api/jobs', jobRoutes);
 
 // Global Error Handler (Must be last)
 app.use(errorHandler);
