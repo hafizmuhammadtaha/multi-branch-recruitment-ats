@@ -11,6 +11,8 @@ app.use(express.json());
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/branches', require('./routes/branch.routes'));
+app.use('/api/jobs', require('./routes/job.routes'));
 
 // Global Error Handler (Must be last)
 app.use(errorHandler);
