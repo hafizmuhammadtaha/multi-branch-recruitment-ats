@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth.routes');
 const branchRoutes = require('./routes/branch.routes');
 const jobRoutes = require('./routes/job.routes');
 const applicationRoutes = require('./routes/application.routes');
+const interviewRoutes = require('./routes/interview.routes');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/branches', branchRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
+app.use('/api/interviews', interviewRoutes);
 
 // Global Error Handler (Must be last)
 app.use(errorHandler);
