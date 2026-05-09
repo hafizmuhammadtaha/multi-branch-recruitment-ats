@@ -1,6 +1,5 @@
 const User = require('../models/user.model');
 const bcrypt = require('bcryptjs');
-const { uploadToCloudinary, removeFromCloudinary } = require('../services/cloudinary.service');
 
 // @desc    Get current logged in user profile
 // @route   GET /api/users/me
