@@ -8,6 +8,12 @@ exports.scheduleInterview = async (req, res, next) => {
     try {
         const { applicationId, date, time, message } = req.body;
 
+        const application = await Application.findById(applicationId).populate('candidate', 'email name');
+        if (!application) {
+            res.status(404);
+            throw new Error('Application not found');
+        }
+
         const interview = await Interview.create({
             application: applicationId,
             date,
@@ -16,17 +22,13 @@ exports.scheduleInterview = async (req, res, next) => {
         });
 
         // Update application status to reflect the interview
-        const application = await Application.findByIdAndUpdate(
-            applicationId, 
-            { status: 'Interview Scheduled' }, 
-            { new: true }
-        ).populate('candidate', 'email name');
+        await Application.findByIdAndUpdate(applicationId, { status: 'Interview Scheduled' });
 
         // Send confirmation email to candidate
         await sendEmail({
             email: application.candidate.email,
             subject: 'Interview Scheduled - ATS Recruitment',
-            message: `Hi ${application.candidate.name}, an interview has been scheduled for ${date} at ${time}. Message: ${message}`
+            message: `Hi ${application.candidate.name}, an interview has been scheduled for ${date} at ${time}. ${message}`
         });
 
         res.status(201).json({ success: true, data: interview });
