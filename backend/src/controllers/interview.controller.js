@@ -36,3 +36,24 @@ exports.scheduleInterview = async (req, res, next) => {
         next(error);
     }
 };
+
+// @desc    Get interviews
+// @route   GET /api/interviews
+exports.getInterviews = async (req, res, next) => {
+    try {
+        let filter = {};
+
+        if (req.user.role === 'candidate') {
+            const applications = await Application.find({ candidate: req.user._id });
+            const applicationIds = applications.map((app) => app._id);
+            filter.application = { $in: applicationIds };
+        }
+
+        const interviews = await Interview.find(filter)
+            .populate({ path: 'application', populate: [{ path: 'candidate', select: 'name email' }, { path: 'job', select: 'title branch' }] });
+
+        res.status(200).json({ success: true, data: interviews });
+    } catch (error) {
+        next(error);
+    }
+};
