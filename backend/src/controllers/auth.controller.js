@@ -17,12 +17,14 @@ exports.registerUser = async (req, res, next) => {
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
+        const profilePicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0D8ABC&color=fff&size=400`;
 
         const user = await User.create({
             name,
             email,
             password: hashedPassword,
-            role: role || 'candidate',                 // Default to candidate
+            role: role || 'candidate',              
+            profilePicUrl   
         });
 
         res.status(201).json({
@@ -31,6 +33,7 @@ exports.registerUser = async (req, res, next) => {
             name: user.name,
             email: user.email,
             role: user.role,
+            profilePicUrl: user.profilePicUrl,
             token: generateToken(user._id),
         });
     } catch (error) {
@@ -53,6 +56,7 @@ exports.loginUser = async (req, res, next) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                profilePicUrl: user.profilePicUrl,
                 token: generateToken(user._id),
             });
         } else {
