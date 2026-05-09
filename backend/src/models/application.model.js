@@ -3,6 +3,7 @@ const applicationSchema = new mongoose.Schema({
     candidate: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     job: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
     resumeUrl: { type: String, required: true }, // [cite: 156, 196]
+    coverLetterUrl: { type: String },
     status: { 
         type: String, 
         enum: ['Submitted', 'Under Review', 'Shortlisted', 'Interview Scheduled', 'Rejected', 'Selected'], 
