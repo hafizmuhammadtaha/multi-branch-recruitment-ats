@@ -9,7 +9,7 @@ const {
     sendCustomMessage
 } = require('../controllers/application.controller');
 const { protect, authorize } = require('../middleware/auth.middleware');
-const upload = require('../middleware/upload.middleware');
+const {upload} = require('../middleware/upload.middleware');
 
 // Candidates apply with a PDF resume and optional cover letter
 router.post(

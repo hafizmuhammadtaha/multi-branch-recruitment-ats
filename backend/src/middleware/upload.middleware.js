@@ -57,4 +57,26 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit for security
 });
 
-module.exports = upload; 
+const profilePicStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: async (req, file) => ({
+        folder: 'ats_profile_pics',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        resource_type: 'image',
+        transformation: [{ width: 400, height: 400, crop: 'fill' }]
+    }),
+});
+
+const uploadProfilePic = multer({
+    storage: profilePicStorage,
+    fileFilter: (req, file, cb) => {
+        const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!allowed.includes(file.mimetype)) {
+            return cb(new Error('Profile picture must be JPG, PNG or WEBP'), false);
+        }
+        cb(null, true);
+    },
+    limits: { fileSize: 2 * 1024 * 1024 } // 2MB
+});
+
+module.exports = { upload, uploadProfilePic };
