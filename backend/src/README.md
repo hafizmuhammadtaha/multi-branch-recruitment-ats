@@ -8,17 +8,18 @@
 - [Authentication](#authentication)
 - [Response Format](#response-format)
 - [API Endpoints](#api-endpoints)
-  - [Auth](#1-auth)
-  - [Branches](#2-branches)
-  - [Jobs](#3-jobs)
-  - [Applications](#4-applications)
-  - [Interviews](#5-interviews)
-  - [Users / Profile](#6-users--profile)
+  - [1. Auth](#1-auth)
+  - [2. Branches](#2-branches)
+  - [3. Jobs](#3-jobs)
+  - [4. Applications](#4-applications)
+  - [5. Interviews](#5-interviews)
+  - [6. Users / Profile](#6-users--profile)
 - [Role Reference](#role-reference)
 - [Application Status Flow](#application-status-flow)
 - [File Upload Rules](#file-upload-rules)
 - [Email Triggers](#email-triggers)
 - [Error Handling](#error-handling)
+- [Frontend Routing Guide](#frontend-routing-guide)
 
 ---
 
@@ -30,7 +31,7 @@
 | Framework | Express.js |
 | Database | MongoDB (Atlas) |
 | ODM | Mongoose |
-| Auth | JWT (jsonwebtoken) |
+| Auth | JWT (jsonwebtoken) — expires in 30 days |
 | File Storage | Cloudinary |
 | Email | Nodemailer + Gmail SMTP |
 | File Upload | Multer + multer-storage-cloudinary |
@@ -43,31 +44,48 @@
 backend/
 ├── src/
 │   ├── config/
-│   │   ├── cloudinary.js       # Cloudinary SDK config
-│   │   ├── db.js               # MongoDB Atlas connection
-│   │   └── email.js            # Nodemailer transporter
-│   ├── controllers/            # Route handler logic
+│   │   ├── cloudinary.js        # Cloudinary SDK config
+│   │   ├── db.js                # MongoDB Atlas connection
+│   │   └── email.js             # Nodemailer transporter
+│   ├── controllers/
+│   │   ├── application.controller.js
+│   │   ├── auth.controller.js
+│   │   ├── branch.controller.js
+│   │   ├── interview.controller.js
+│   │   ├── job.controller.js
+│   │   └── user.controller.js
 │   ├── middleware/
-│   │   ├── auth.middleware.js  # protect (JWT verify) + authorize (RBAC)
-│   │   ├── error.middleware.js # Global error handler
-│   │   └── upload.middleware.js# Multer + Cloudinary storage configs
-│   ├── models/                 # Mongoose schemas
-│   ├── routes/                 # Express routers
+│   │   ├── auth.middleware.js   # protect (JWT verify) + authorize (RBAC)
+│   │   ├── error.middleware.js  # Global error handler
+│   │   └── upload.middleware.js # Multer + Cloudinary storage configs
+│   ├── models/
+│   │   ├── application.model.js
+│   │   ├── branch.model.js
+│   │   ├── interview.model.js
+│   │   ├── job.model.js
+│   │   └── user.model.js
+│   ├── routes/
+│   │   ├── application.routes.js
+│   │   ├── auth.routes.js
+│   │   ├── branch.routes.js
+│   │   ├── interview.routes.js
+│   │   ├── job.routes.js
+│   │   └── user.routes.js
 │   ├── services/
 │   │   ├── cloudinary.service.js
 │   │   └── email.service.js
 │   ├── utils/
-│   │   ├── jwt.js              # generateToken(id)
-│   │   └── response.js         # sendResponse helper
-│   ├── app.js                  # Express app setup + route mounting
-│   └── server.js               # Entry point — connects DB and starts server
+│   │   ├── jwt.js               # generateToken(id)
+│   │   └── response.js          # sendResponse helper
+│   ├── app.js                   # Express app setup + route mounting
+│   └── server.js                # Entry point
 ```
 
 ---
 
 ## Environment Variables
 
-Create a `.env` file in the `backend/` root. **Never commit this file.**
+Create a `.env` file in the `backend/` root. **Never commit this file — it is in `.gitignore`.**
 
 ```env
 # Server
@@ -90,17 +108,17 @@ GMAIL_USER=your_gmail@gmail.com
 GMAIL_PASS=your_gmail_app_password
 ```
 
-> For Gmail, use an **App Password** (not your real password). Generate one at: Google Account → Security → 2-Step Verification → App Passwords.
+> For Gmail, use an **App Password** (not your real password).
+> Generate one at: Google Account → Security → 2-Step Verification → App Passwords.
 
 ---
 
 ## Setup & Run Locally
 
 ```bash
-# From project root
 cd backend
 npm install
-npm run dev     # uses nodemon
+npm run dev     # development with nodemon
 # or
 npm start       # production
 ```
@@ -111,13 +129,13 @@ Server runs on `http://localhost:5000`
 
 ## Authentication
 
-Protected routes require a JWT token in the request header:
+All protected routes require a JWT token in the request header:
 
 ```
 Authorization: Bearer <token>
 ```
 
-You get the token from the `/api/auth/register` or `/api/auth/login` response.
+You receive the token from `/api/auth/register` or `/api/auth/login`.
 
 **JWT expires in: 30 days**
 
@@ -131,7 +149,7 @@ All responses follow this consistent shape:
 ```json
 {
   "success": true,
-  "data": { ... }
+  "data": { }
 }
 ```
 
@@ -143,13 +161,15 @@ All responses follow this consistent shape:
 }
 ```
 
+> In development (`NODE_ENV=development`), error responses also include a `stack` field for debugging.
+
 ---
 
 ## API Endpoints
 
 ### Base URL
-- **Local:** `http://localhost:5000`
-- **Production:** Set `VITE_API_URL` in your frontend `.env` to the deployed Render URL
+- **Local development:** `http://localhost:5000`
+- **Production:** Store deployed Render URL in frontend `.env` as `VITE_API_URL`
 
 ---
 
@@ -160,6 +180,8 @@ All responses follow this consistent shape:
 POST /api/auth/register
 ```
 **Auth:** Public
+
+**Content-Type:** `application/json`
 
 **Request Body:**
 ```json
@@ -175,7 +197,7 @@ POST /api/auth/register
 |---|---|---|---|
 | name | string | ✅ | |
 | email | string | ✅ | Must be unique |
-| password | string | ✅ | |
+| password | string | ✅ | Minimum 6 characters |
 | role | string | ❌ | `candidate` / `hr` / `admin` — defaults to `candidate` |
 
 **Response `201`:**
@@ -186,9 +208,12 @@ POST /api/auth/register
   "name": "John Doe",
   "email": "john@example.com",
   "role": "candidate",
+  "profilePicUrl": "https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff&size=400",
   "token": "eyJhbGci..."
 }
 ```
+
+> A default avatar is auto-generated from the user's name using the UI Avatars API. No profile picture upload needed at registration.
 
 ---
 
@@ -197,6 +222,8 @@ POST /api/auth/register
 POST /api/auth/login
 ```
 **Auth:** Public
+
+**Content-Type:** `application/json`
 
 **Request Body:**
 ```json
@@ -214,11 +241,12 @@ POST /api/auth/login
   "name": "John Doe",
   "email": "john@example.com",
   "role": "candidate",
+  "profilePicUrl": "https://res.cloudinary.com/...",
   "token": "eyJhbGci..."
 }
 ```
 
-> Store the `token` and `role` in localStorage or your auth context. Include the token in all subsequent protected requests.
+> After login or register, store `token`, `role`, `name`, `_id`, and `profilePicUrl` in localStorage and AuthContext.
 
 ---
 
@@ -235,7 +263,7 @@ GET /api/branches
 {
   "success": true,
   "data": [
-    { "_id": "64a...", "name": "Islamabad", "createdAt": "...", "updatedAt": "..." },
+    { "_id": "64a...", "name": "Islamabad" },
     { "_id": "64b...", "name": "Lahore" },
     { "_id": "64c...", "name": "Karachi" },
     { "_id": "64d...", "name": "Remote" }
@@ -250,6 +278,8 @@ GET /api/branches
 POST /api/branches
 ```
 **Auth:** `admin` only
+
+**Content-Type:** `application/json`
 
 **Request Body:**
 ```json
@@ -266,7 +296,7 @@ POST /api/branches
 }
 ```
 
-> Branch names are unique — duplicate names return a `400` error.
+> Branch names are unique — duplicate names return `400`.
 
 ---
 
@@ -285,7 +315,7 @@ GET /api/jobs?branch=Karachi&title=react
 
 | Param | Type | Description |
 |---|---|---|
-| branch | string | Filter by branch name (case-insensitive) |
+| branch | string | Filter by branch name (case-insensitive exact match) |
 | title | string | Search by job title (partial match, case-insensitive) |
 
 **Response `200`:**
@@ -336,6 +366,8 @@ POST /api/jobs
 ```
 **Auth:** `hr`, `admin`
 
+**Content-Type:** `application/json`
+
 **Request Body:**
 ```json
 {
@@ -350,7 +382,7 @@ POST /api/jobs
 |---|---|---|---|
 | title | string | ✅ | |
 | description | string | ✅ | |
-| branch | string | ✅ | Branch `_id` (ObjectId) from `GET /api/branches` |
+| branch | string | ✅ | Branch `_id` (ObjectId) — get from `GET /api/branches` |
 | availableSeats | number | ✅ | |
 
 **Response `201`:** Created job object.
@@ -363,10 +395,14 @@ PUT /api/jobs/:id
 ```
 **Auth:** `hr`, `admin`
 
+**Content-Type:** `application/json`
+
 **Request Body** (all fields optional):
 ```json
 {
   "title": "Senior React Developer",
+  "description": "Updated description...",
+  "branch": "64b...",
   "availableSeats": 2
 }
 ```
@@ -409,12 +445,12 @@ POST /api/applications
 | resume | file | ✅ | PDF only, max 5MB |
 | coverLetter | file | ❌ | PDF or DOCX, max 5MB |
 
-**How to send from frontend (Axios example):**
+**Axios example:**
 ```javascript
 const formData = new FormData();
 formData.append('jobId', jobId);
-formData.append('resume', resumeFile);       // File object
-formData.append('coverLetter', coverLetterFile); // Optional File object
+formData.append('resume', resumeFile);
+formData.append('coverLetter', coverLetterFile); // optional
 
 await axios.post('/api/applications', formData, {
   headers: {
@@ -440,11 +476,11 @@ await axios.post('/api/applications', formData, {
 }
 ```
 
-> `availableSeats` on the job is automatically decremented by 1. If seats are 0, returns `400`.
+> `availableSeats` on the job is automatically decremented by 1 on successful application. Returns `400` if seats are 0.
 
 ---
 
-#### Get My Applications (Candidate)
+#### Get My Applications
 ```
 GET /api/applications/me
 ```
@@ -476,7 +512,7 @@ GET /api/applications/me
 
 ---
 
-#### Get All Applications (HR/Admin)
+#### Get All Applications
 ```
 GET /api/applications
 GET /api/applications?status=Shortlisted
@@ -489,7 +525,7 @@ GET /api/applications?status=Submitted&jobId=64e...
 
 | Param | Type | Description |
 |---|---|---|
-| status | string | Filter by status (exact match) |
+| status | string | Filter by exact status value |
 | jobId | string | Filter by job `_id` |
 
 **Response `200`:** Array of application objects with `job` (title, branch) and `candidate` (name, email) populated.
@@ -514,6 +550,8 @@ PUT /api/applications/:id/status
 ```
 **Auth:** `hr`, `admin`
 
+**Content-Type:** `application/json`
+
 **Request Body:**
 ```json
 {
@@ -521,18 +559,11 @@ PUT /api/applications/:id/status
 }
 ```
 
-**Valid status values:**
-
-| Status | Triggers Email? |
-|---|---|
-| `Submitted` | No |
-| `Under Review` | No |
-| `Shortlisted` | ✅ Yes |
-| `Interview Scheduled` | ✅ Yes (set automatically when interview is created) |
-| `Rejected` | ✅ Yes |
-| `Selected` | ✅ Yes |
+**Valid status values:** `Submitted` / `Under Review` / `Shortlisted` / `Interview Scheduled` / `Rejected` / `Selected`
 
 **Response `200`:** Updated application object.
+
+> Automatically sends email to candidate when status is set to `Shortlisted`, `Rejected`, or `Selected`.
 
 ---
 
@@ -542,6 +573,8 @@ POST /api/applications/:id/message
 ```
 **Auth:** `hr`, `admin`
 
+**Content-Type:** `application/json`
+
 **Request Body:**
 ```json
 {
@@ -550,10 +583,10 @@ POST /api/applications/:id/message
 }
 ```
 
-| Field | Type | Required |
-|---|---|---|
-| subject | string | ❌ Defaults to `"Message from HR"` |
-| message | string | ✅ |
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| subject | string | ❌ | Defaults to `"Message from HR"` |
+| message | string | ✅ | |
 
 **Response `200`:**
 ```json
@@ -573,6 +606,8 @@ POST /api/interviews
 ```
 **Auth:** `hr`, `admin`
 
+**Content-Type:** `application/json`
+
 **Request Body:**
 ```json
 {
@@ -590,9 +625,9 @@ POST /api/interviews
 | time | string | ✅ |
 | message | string | ❌ |
 
-**Side effects (automatic):**
+**Automatic side effects:**
 - Application status is updated to `Interview Scheduled`
-- Confirmation email is sent to the candidate with date, time, and message
+- Confirmation email sent to candidate with date, time, and message
 
 **Response `201`:**
 ```json
@@ -617,7 +652,7 @@ GET /api/interviews
 ```
 **Auth:** `candidate`, `hr`, `admin`
 
-**Role-based filtering (automatic):**
+**Role-based filtering (automatic — no query params needed):**
 - `candidate` — receives only their own interviews
 - `hr` / `admin` — receives all interviews
 
@@ -661,7 +696,8 @@ GET /api/users/me
     "email": "john@example.com",
     "role": "candidate",
     "profilePicUrl": "https://res.cloudinary.com/...",
-    "createdAt": "..."
+    "createdAt": "...",
+    "updatedAt": "..."
   }
 }
 ```
@@ -682,10 +718,10 @@ PUT /api/users/me
 |---|---|---|
 | name | string | New display name |
 | email | string | Must be unique across all users |
-| password | string | Will be hashed automatically |
-| profilePic | file | JPG / PNG / WEBP only, max 2MB |
+| password | string | Minimum 6 characters — hashed automatically |
+| profilePic | file | JPG / PNG / WEBP only, max 2MB — stored on Cloudinary, auto-cropped to 400x400px |
 
-**How to send from frontend (Axios example):**
+**Axios example:**
 ```javascript
 const formData = new FormData();
 if (name) formData.append('name', name);
@@ -701,7 +737,7 @@ await axios.put('/api/users/me', formData, {
 });
 ```
 
-> If only updating text fields (name/email/password) with no file, you can also send `application/json` — the endpoint handles both.
+> If only updating text fields (no file), you can send `application/json` instead of multipart.
 
 **Response `200`:**
 ```json
@@ -721,11 +757,11 @@ await axios.put('/api/users/me', formData, {
 
 ## Role Reference
 
-| Role | What They Can Do |
+| Role | Permissions |
 |---|---|
 | `candidate` | Register/login, view jobs, apply for jobs, view own applications, view own interviews, edit own profile |
 | `hr` | All candidate views + manage jobs, view all applications, update application status, send messages, schedule interviews, view all interviews |
-| `admin` | All HR permissions + manage branches, create HR accounts |
+| `admin` | All HR permissions + manage branches |
 
 ---
 
@@ -733,42 +769,44 @@ await axios.put('/api/users/me', formData, {
 
 ```
 Submitted → Under Review → Shortlisted → Interview Scheduled → Selected
-                                      ↘ Rejected
+                                       ↘ Rejected
 ```
 
-| Transition | Who triggers it | Email sent? |
+| Status | Who Sets It | Email Sent to Candidate? |
 |---|---|---|
-| → Under Review | HR/Admin manually | No |
-| → Shortlisted | HR/Admin manually | ✅ Yes |
-| → Rejected | HR/Admin manually | ✅ Yes |
-| → Interview Scheduled | Auto when interview created | ✅ Yes |
-| → Selected | HR/Admin manually | ✅ Yes |
+| `Submitted` | Auto on apply | No |
+| `Under Review` | HR/Admin manually | No |
+| `Shortlisted` | HR/Admin manually | ✅ Yes |
+| `Interview Scheduled` | Auto when interview is created | ✅ Yes |
+| `Rejected` | HR/Admin manually | ✅ Yes |
+| `Selected` | HR/Admin manually | ✅ Yes |
 
 ---
 
 ## File Upload Rules
 
-| File Type | Field Name | Accepted Formats | Max Size | Cloudinary Folder |
+| File | Field Name | Accepted Formats | Max Size | Cloudinary Folder |
 |---|---|---|---|---|
 | Resume | `resume` | PDF only | 5MB | `ats_resumes` |
 | Cover Letter | `coverLetter` | PDF, DOCX | 5MB | `ats_cover_letters` |
 | Profile Picture | `profilePic` | JPG, PNG, WEBP | 2MB | `ats_profile_pics` |
 
-- All files are stored on **Cloudinary** — the backend returns a `secure_url` which is saved in MongoDB
-- Profile pictures are auto-cropped to 400×400px
-- Never store files locally — always use the Cloudinary URL from the response
+- All files are stored on **Cloudinary** — backend saves only the returned `secure_url` in MongoDB
+- Profile pictures are auto-cropped to 400×400px on Cloudinary
+- Never store files locally — always reference the Cloudinary URL from the response
+- New users automatically get a generated avatar from UI Avatars API — no upload needed at registration
 
 ---
 
 ## Email Triggers
 
-Emails are sent automatically via Gmail SMTP in these situations:
+Emails are sent automatically via Gmail SMTP:
 
-| Event | Recipient | Triggered by |
+| Trigger | Recipient | When |
 |---|---|---|
-| Application status → Shortlisted | Candidate | `PUT /api/applications/:id/status` |
-| Application status → Rejected | Candidate | `PUT /api/applications/:id/status` |
-| Application status → Selected | Candidate | `PUT /api/applications/:id/status` |
+| Status → `Shortlisted` | Candidate | `PUT /api/applications/:id/status` |
+| Status → `Rejected` | Candidate | `PUT /api/applications/:id/status` |
+| Status → `Selected` | Candidate | `PUT /api/applications/:id/status` |
 | Interview scheduled | Candidate | `POST /api/interviews` |
 | Custom HR message | Candidate | `POST /api/applications/:id/message` |
 
@@ -776,22 +814,59 @@ Emails are sent automatically via Gmail SMTP in these situations:
 
 ## Error Handling
 
-All errors return:
-```json
-{
-  "success": false,
-  "message": "Human readable error message"
-}
-```
-
-Common HTTP status codes:
-
-| Code | Meaning |
+| HTTP Code | Meaning |
 |---|---|
-| 400 | Bad request (validation error, duplicate data, no seats) |
-| 401 | Not authenticated (missing or invalid token) |
-| 403 | Forbidden (wrong role, or candidate accessing other's data) |
-| 404 | Resource not found |
-| 500 | Internal server error |
+| `400` | Bad request — validation error, duplicate data, no available seats |
+| `401` | Unauthorized — missing or invalid/expired token |
+| `403` | Forbidden — wrong role, or candidate accessing another user's data |
+| `404` | Resource not found |
+| `500` | Internal server error |
 
-In development (`NODE_ENV=development`), error responses also include a `stack` field for debugging.
+---
+
+## Frontend Routing Guide
+
+### Public Routes (no auth required)
+| Path | Page |
+|---|---|
+| `/` | Home / landing page with featured jobs |
+| `/jobs` | All jobs with branch + title filter |
+| `/jobs/:id` | Single job detail + Apply button (redirect to `/login` if not authenticated) |
+| `/login` | Login page |
+| `/register` | Register page |
+
+### Candidate Routes (role: `candidate`)
+| Path | Page |
+|---|---|
+| `/dashboard` | Candidate dashboard |
+| `/profile` | View + edit profile, upload profile picture |
+| `/my-applications` | List of applied jobs with status badges |
+| `/my-applications/:id` | Single application detail with resume/cover letter links |
+| `/my-interviews` | List of scheduled interviews |
+
+### HR Routes (role: `hr` or `admin`)
+| Path | Page |
+|---|---|
+| `/hr/dashboard` | HR dashboard |
+| `/hr/jobs` | Manage jobs — list, create, edit, delete |
+| `/hr/jobs/create` | Create new job form |
+| `/hr/jobs/:id/edit` | Edit existing job form |
+| `/hr/applications` | All applications with status + job filters |
+| `/hr/applications/:id` | Application detail — view resume, change status, send message, schedule interview |
+| `/hr/interviews` | All scheduled interviews |
+
+### Admin Routes (role: `admin`)
+| Path | Page |
+|---|---|
+| `/admin/dashboard` | Admin dashboard |
+| `/admin/branches` | Manage branches — list + create |
+
+### Auth & Redirect Rules
+- After **login or register**, read the `role` field from the response:
+  - `candidate` → redirect to `/dashboard`
+  - `hr` → redirect to `/hr/dashboard`
+  - `admin` → redirect to `/admin/dashboard`
+- Store `token`, `role`, `name`, `_id`, `profilePicUrl` in **localStorage** and **AuthContext**
+- **Protected routes** — redirect to `/login` if no token found in localStorage
+- **Role mismatch** — if a `candidate` tries to access `/hr/*` or `/admin/*`, redirect to `/dashboard`
+- On any `401` response from the API — clear localStorage and redirect to `/login`
