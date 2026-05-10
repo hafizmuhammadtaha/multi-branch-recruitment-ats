@@ -28,30 +28,41 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Configure storage for Cloudinary
+// PDF Upload Strategy:
+//   - resource_type: 'raw'   → forces DOWNLOAD, may corrupt content — BAD for viewing
+//   - resource_type: 'auto'  → unpredictable behavior for PDFs — BAD
+//   - resource_type: 'image' → Cloudinary natively supports PDFs as image type,
+//     serves with Content-Type: application/pdf and Content-Disposition: inline
+//     → opens DIRECTLY in the browser's PDF viewer ✅
+// DOCX files must use 'raw' since browsers can't render them inline anyway.
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: async (req, file) => {
-        // Default settings for Resumes
         let folderName = 'ats_resumes';
         let allowedFormats = ['pdf'];
+        let resourceType = 'image'; // PDFs open inline in browser as 'image' type
 
-        // Handling specific field for Cover Letters as per requirements
         if (file.fieldname === 'coverLetter') {
             folderName = 'ats_cover_letters';
             allowedFormats = ['pdf', 'docx'];
+
+            // DOCX can't be viewed inline in browser — use 'raw' for download
+            const ext = path.extname(file.originalname).toLowerCase();
+            if (ext === '.docx') {
+                resourceType = 'raw';
+            }
         }
 
         return {
             folder: folderName,
             allowed_formats: allowedFormats,
-            resource_type: 'auto', // CRITICAL: Ensures PDF/Docx are handled as documents
-            flags: 'attachment'    // Optional: Helps browser handle file delivery
+            resource_type: resourceType
         };
     },
 });
 
 // Initialize multer with Cloudinary storage
-const upload = multer({ 
+const upload = multer({
     storage: storage,
     fileFilter,
     limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit for security
