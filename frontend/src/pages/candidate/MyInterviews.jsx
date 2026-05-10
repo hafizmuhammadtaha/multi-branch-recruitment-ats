@@ -28,7 +28,7 @@ const MyInterviews = () => {
             </div>
             <div style={s.cardRight}>
               <div style={s.dateBox}>
-               <div style={s.dateVal}>{new Date(iv.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+               <div style={s.dateVal}>{iv.date ? new Date(iv.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No Date'}</div>
                 <div style={s.timeVal}>{iv.time}</div>
               </div>
             </div>

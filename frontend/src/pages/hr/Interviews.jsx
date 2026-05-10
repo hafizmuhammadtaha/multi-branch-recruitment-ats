@@ -27,7 +27,7 @@ const HRInterviews = () => {
               {iv.message && <p style={s.message}>"{iv.message}"</p>}
             </div>
             <div style={s.dateBox}>
-              <div style={s.dateVal}>{iv.date}</div>
+              <div style={s.dateVal}>{iv.date ? new Date(iv.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'No Date'}</div>
               <div style={s.timeVal}>{iv.time}</div>
             </div>
           </div>
