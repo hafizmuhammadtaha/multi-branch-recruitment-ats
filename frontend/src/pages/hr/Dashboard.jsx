@@ -80,7 +80,7 @@ const HRDashboard = () => {
                 <div style={s.name}>{iv.application?.candidate?.name}</div>
                 <div style={s.sub}>{iv.application?.job?.title}</div>
               </div>
-              <div style={s.dateTag}>{iv.date} · {iv.time}</div>
+              <div style={s.dateTag}>{iv.date ? new Date(iv.date).toLocaleDateString() : 'No Date'} · {iv.time}</div>
             </div>
           ))}
         </div>}

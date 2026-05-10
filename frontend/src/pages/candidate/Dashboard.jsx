@@ -81,7 +81,7 @@ const Dashboard = () => {
                 <div style={s.jobTitle}>{iv.application?.job?.title || 'Interview'}</div>
                 <div style={s.jobBranch}>{iv.message}</div>
               </div>
-              <div style={s.dateTag}>{new Date(iv.scheduledAt).toLocaleDateString()}</div>
+              <div style={s.dateTag}>{iv.date ? new Date(iv.date).toLocaleDateString() : 'No Date'} · {iv.time}</div>
             </div>
           ))}
         </div>}
