@@ -33,7 +33,7 @@ const fileFilter = (req, file, cb) => {
 //   - resource_type: 'auto'  → unpredictable behavior for PDFs — BAD
 //   - resource_type: 'image' → Cloudinary natively supports PDFs as image type,
 //     serves with Content-Type: application/pdf and Content-Disposition: inline
-//     → opens DIRECTLY in the browser's PDF viewer ✅
+//     → opens DIRECTLY in the browser's PDF viewer
 // DOCX files must use 'raw' since browsers can't render them inline anyway.
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,

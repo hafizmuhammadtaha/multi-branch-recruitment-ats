@@ -6,22 +6,19 @@ const Branch = require('./src/models/branch.model');
 const Job = require('./src/models/job.model');
 
 mongoose.connect(process.env.MONGO_URI).then(async () => {
-    console.log('✅ Connected to MongoDB Atlas');
-    
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash('123456', salt);
 
     // ── Seed Branches (Required: Islamabad, Lahore, Karachi, Remote) ──
     const branchNames = ['Islamabad', 'Lahore', 'Karachi', 'Remote'];
     const branchDocs = {};
-    
+
     for (const name of branchNames) {
         let branch = await Branch.findOne({ name });
         if (!branch) {
             branch = await Branch.create({ name });
-            console.log(`📍 Created branch: ${name}`);
         } else {
-            console.log(`📍 Branch already exists: ${name}`);
+            // Already exists
         }
         branchDocs[name] = branch;
     }
@@ -36,9 +33,8 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
             role: 'admin',
             profilePicUrl: 'https://ui-avatars.com/api/?name=System+Admin&background=4f46e5&color=fff&size=400'
         });
-        console.log('👤 Created Admin: admin@techvista.com / 123456');
     } else {
-        console.log('👤 Admin already exists');
+        // Already exists
     }
 
     // ── Seed HR User ──
@@ -51,9 +47,8 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
             role: 'hr',
             profilePicUrl: 'https://ui-avatars.com/api/?name=HR+Manager&background=0D8ABC&color=fff&size=400'
         });
-        console.log('👤 Created HR: hr@techvista.com / 123456');
     } else {
-        console.log('👤 HR already exists');
+        // Already exists
     }
 
     // ── Seed Candidate User ──
@@ -66,9 +61,8 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
             role: 'candidate',
             profilePicUrl: 'https://ui-avatars.com/api/?name=Ali+Khan&background=10B981&color=fff&size=400'
         });
-        console.log('👤 Created Candidate: candidate@example.com / 123456');
     } else {
-        console.log('👤 Candidate already exists');
+        // Already exists
     }
 
     // ── Seed Sample Jobs ──
@@ -84,18 +78,10 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
     const existingJobs = await Job.countDocuments();
     if (existingJobs === 0) {
         await Job.insertMany(sampleJobs);
-        console.log(`💼 Created ${sampleJobs.length} sample jobs`);
     } else {
-        console.log(`💼 Jobs already exist (${existingJobs} found), skipping seed`);
+        // Already exists
     }
-
-    console.log('\n🚀 Seed complete! You can now login with:');
-    console.log('   Admin:     admin@techvista.com / 123456');
-    console.log('   HR:        hr@techvista.com / 123456');
-    console.log('   Candidate: candidate@example.com / 123456');
-
     process.exit(0);
 }).catch(err => {
-    console.error('❌ Seed failed:', err);
     process.exit(1);
 });

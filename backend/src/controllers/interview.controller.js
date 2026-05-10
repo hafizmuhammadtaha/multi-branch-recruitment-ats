@@ -18,11 +18,11 @@ const generateInterviewEmail = (candidateName, jobTitle, date, time, message) =>
             <div style="background: #EEF2FF; border-radius: 12px; padding: 24px; margin: 0 0 24px;">
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr>
-                        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600; width: 100px;">📅 Date</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600; width: 100px;">Date</td>
                         <td style="padding: 8px 0; font-size: 15px; color: #111827; font-weight: 700;">${new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;">🕐 Time</td>
+                        <td style="padding: 8px 0; font-size: 14px; color: #6B7280; font-weight: 600;">Time</td>
                         <td style="padding: 8px 0; font-size: 15px; color: #111827; font-weight: 700;">${time}</td>
                     </tr>
                 </table>

@@ -9,5 +9,5 @@ const PORT = process.env.PORT || 5000;
 
 // This will now work because app is correctly imported from app.js
 app.listen(PORT, () => {
-    console.log(`🚀 Server running in dev mode on port ${PORT}`);
+    // Server running silently
 });

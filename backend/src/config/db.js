@@ -1,12 +1,21 @@
 const mongoose = require('mongoose');
 
+// Cache connection for serverless environments (like Vercel) to prevent connection pooling issues
+let isConnected = false;
+
 const connectDB = async () => {
+    if (isConnected) {
+        return;
+    }
+
     try {
+        // Connect to MongoDB Atlas
         const conn = await mongoose.connect(process.env.MONGO_URI);
-        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+
+        isConnected = conn.connections[0].readyState;
     } catch (error) {
-        console.error(`❌ Error: ${error.message}`);
-        process.exit(1); 
+        // Important: Don't use process.exit(1) here as it will crash the serverless function
+        throw error;
     }
 };
 
