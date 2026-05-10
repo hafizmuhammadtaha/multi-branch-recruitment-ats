@@ -7,7 +7,10 @@ const Jobs = () => {
   const [branches, setBranches] = useState([]);
   const [title, setTitle]     = useState('');
   const [branch, setBranch]   = useState('');
+  const [department, setDepartment] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const departments = ['Engineering', 'Design', 'Marketing', 'HR', 'QA', 'DevOps', 'Management', 'Finance', 'Sales', 'Support'];
 
   useEffect(() => {
     api.get('/branches').then(r => setBranches(r.data.data));
@@ -18,10 +21,11 @@ const Jobs = () => {
     const params = {};
     if (title)  params.title  = title;
     if (branch) params.branch = branch;
+    if (department) params.department = department;
     api.get('/jobs', { params })
       .then(r => setJobs(r.data.data))
       .finally(() => setLoading(false));
-  }, [title, branch]);
+  }, [title, branch, department]);
 
   return (
     <div style={s.page}>
@@ -41,6 +45,10 @@ const Jobs = () => {
         <select value={branch} onChange={e => setBranch(e.target.value)} style={s.select}>
           <option value="">All Branches</option>
           {branches.map(b => <option key={b._id} value={b.name}>{b.name}</option>)}
+        </select>
+        <select value={department} onChange={e => setDepartment(e.target.value)} style={s.select}>
+          <option value="">All Departments</option>
+          {departments.map(d => <option key={d} value={d}>{d}</option>)}
         </select>
       </div>
 
