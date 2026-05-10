@@ -150,18 +150,19 @@ exports.updateStatus = async (req, res, next) => {
         application.status = status;
         await application.save();
 
-        // Send professional HTML email for key status changes
+        // Respond to frontend IMMEDIATELY (don't wait for email)
+        res.status(200).json({ success: true, data: application });
+
+        // Fire-and-forget: send email in background after response
         if (['Shortlisted', 'Rejected', 'Selected'].includes(status)) {
             const jobTitle = application.job?.title || 'the applied position';
-            await sendEmail({
+            sendEmail({
                 email: application.candidate.email,
                 subject: `Application Update: ${status} — TechVista Solutions`,
                 message: `Hi ${application.candidate.name}, your application for ${jobTitle} status is now ${status}.`,
                 html: generateStatusEmail(application.candidate.name, status, jobTitle)
-            });
+            }).catch(err => console.error('[STATUS EMAIL] Background send failed:', err.message));
         }
-
-        res.status(200).json({ success: true, data: application });
     } catch (error) {
         next(error);
     }
@@ -197,14 +198,16 @@ exports.sendCustomMessage = async (req, res, next) => {
             </div>
         </div>`;
 
-        await sendEmail({
+        // Respond to frontend IMMEDIATELY (don't wait for email)
+        res.status(200).json({ success: true, message: 'Custom message sent successfully' });
+
+        // Fire-and-forget: send email in background after response
+        sendEmail({
             email: application.candidate.email,
             subject: subject || 'Message from HR — TechVista Solutions',
             message: `Hi ${application.candidate.name},\n\n${message}`,
             html: htmlContent
-        });
-
-        res.status(200).json({ success: true, message: 'Custom message sent successfully' });
+        }).catch(err => console.error('[CUSTOM MSG EMAIL] Background send failed:', err.message));
     } catch (error) {
         next(error);
     }

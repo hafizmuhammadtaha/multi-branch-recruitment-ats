@@ -14,9 +14,16 @@ const sendEmail = async (options) => {
     }
 
     try {
-        await transporter.sendMail(mailOptions);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`[EMAIL OK] Sent to ${options.email} | MessageId: ${info.messageId}`);
     } catch (error) {
-        // Silent failure
+        console.error(`[EMAIL FAIL] To: ${options.email} | Subject: ${options.subject}`);
+        console.error(`[EMAIL FAIL] Error name: ${error.name}`);
+        console.error(`[EMAIL FAIL] Error message: ${error.message}`);
+        console.error(`[EMAIL FAIL] Error code: ${error.code || 'N/A'}`);
+        console.error(`[EMAIL FAIL] SMTP response: ${error.response || 'N/A'}`);
+        // Re-throw so callers can decide how to handle it
+        throw error;
     }
 };
 

@@ -66,16 +66,17 @@ exports.scheduleInterview = async (req, res, next) => {
         // Update application status to reflect the interview
         await Application.findByIdAndUpdate(applicationId, { status: 'Interview Scheduled' });
 
-        // Send professional HTML email to candidate
+        // Respond to frontend IMMEDIATELY (don't wait for email)
+        res.status(201).json({ success: true, data: interview });
+
+        // Fire-and-forget: send email in background after response
         const jobTitle = application.job?.title || 'the applied position';
-        await sendEmail({
+        sendEmail({
             email: application.candidate.email,
             subject: `Interview Scheduled: ${jobTitle} — TechVista Solutions`,
             message: `Hi ${application.candidate.name}, an interview has been scheduled for ${date} at ${time}. ${message || ''}`,
             html: generateInterviewEmail(application.candidate.name, jobTitle, date, time, message)
-        });
-
-        res.status(201).json({ success: true, data: interview });
+        }).catch(err => console.error('[INTERVIEW EMAIL] Background send failed:', err.message));
     } catch (error) {
         next(error);
     }
