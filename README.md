@@ -6,8 +6,8 @@ A full-stack MERN application for managing hiring across multiple branches, feat
 
 | Service | URL |
 |---|---|
-| **Frontend (Vercel)** | `https://techvista-ats.vercel.app` *(update after deployment)* |
-| **Backend (Render)** | `https://techvista-ats-api.onrender.com` *(update after deployment)* |
+| **Frontend (Vercel)** | `https://ats-frontend-ten.vercel.app/` *(update after deployment)* |
+| **Backend (Render)** | `https://ats-backend-tdql.onrender.com/api` *(update after deployment)* |
 
 ---
 
