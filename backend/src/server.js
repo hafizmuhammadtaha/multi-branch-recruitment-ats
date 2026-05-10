@@ -7,7 +7,6 @@ connectDB();
 
 const PORT = process.env.PORT || 5000;
 
-// This will now work because app is correctly imported from app.js
 app.listen(PORT, () => {
-    // Server running silently
+    console.log(`🚀 Server running in production mode on port ${PORT}`);
 });
