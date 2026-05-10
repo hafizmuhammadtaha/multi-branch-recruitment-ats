@@ -25,15 +25,18 @@ const Navbar = () => {
         </>}
 
         {user?.role === 'candidate' && <>
-          <Link to="/dashboard"        style={styles.link}>Dashboard</Link>
-          <Link to="/my-applications"  style={styles.link}>Applications</Link>
-          <Link to="/my-interviews"    style={styles.link}>Interviews</Link>
-          <Link to="/profile"          style={styles.link}>Profile</Link>
+          <Link to="/dashboard"       style={styles.link}>Dashboard</Link>
+          <Link to="/my-applications" style={styles.link}>Applications</Link>
+          <Link to="/my-interviews"   style={styles.link}>Interviews</Link>
+          <Link to="/profile"         style={styles.link}>Profile</Link>
           <button onClick={handleLogout} style={styles.btn}>Logout</button>
         </>}
 
         {(user?.role === 'hr' || user?.role === 'admin') && <>
-          <Link to="/hr/dashboard"    style={styles.link}>Dashboard</Link>
+          {user?.role === 'admin'
+            ? <Link to="/admin/dashboard" style={styles.link}>Dashboard</Link>
+            : <Link to="/hr/dashboard"    style={styles.link}>Dashboard</Link>
+          }
           <Link to="/hr/jobs"         style={styles.link}>Jobs</Link>
           <Link to="/hr/applications" style={styles.link}>Applications</Link>
           <Link to="/hr/interviews"   style={styles.link}>Interviews</Link>
