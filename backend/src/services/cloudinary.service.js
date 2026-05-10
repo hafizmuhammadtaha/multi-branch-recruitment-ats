@@ -6,7 +6,7 @@ const uploadToCloudinary = async (filePath, folder) => {
             folder: folder,
             resource_type: 'auto'
         });
-        return result.secure_url; 
+        return result.secure_url;
     } catch (error) {
         throw new Error('Cloudinary Upload Failed');
     }
@@ -16,7 +16,7 @@ const removeFromCloudinary = async (publicId) => {
     try {
         await cloudinary.uploader.destroy(publicId);
     } catch (error) {
-        // Silent failure
+        console.error('Cloudinary Deletion Failed:', error.message);
     }
 };
 
