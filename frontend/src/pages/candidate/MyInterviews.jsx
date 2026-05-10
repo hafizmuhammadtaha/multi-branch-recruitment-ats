@@ -28,8 +28,8 @@ const MyInterviews = () => {
             </div>
             <div style={s.cardRight}>
               <div style={s.dateBox}>
-                <div style={s.dateVal}>{new Date(iv.scheduledAt).toLocaleDateString()}</div>
-                <div style={s.timeVal}>{new Date(iv.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+               <div style={s.dateVal}>{new Date(iv.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+                <div style={s.timeVal}>{iv.time}</div>
               </div>
             </div>
           </div>
