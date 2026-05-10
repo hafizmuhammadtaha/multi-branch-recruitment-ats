@@ -46,19 +46,19 @@ const App = () => (
 
         {/* candidate */}
         <Route path="/dashboard" element={<ProtectedRoute roles={['candidate']}><CandidateDashboard /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute roles={['candidate','hr','admin']}><Profile /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute roles={['candidate', 'hr', 'admin']}><Profile /></ProtectedRoute>} />
         <Route path="/my-applications" element={<ProtectedRoute roles={['candidate']}><MyApplications /></ProtectedRoute>} />
         <Route path="/my-applications/:id" element={<ProtectedRoute roles={['candidate']}><AppDetail /></ProtectedRoute>} />
         <Route path="/my-interviews" element={<ProtectedRoute roles={['candidate']}><MyInterviews /></ProtectedRoute>} />
 
         {/* hr */}
-        <Route path="/hr/dashboard" element={<ProtectedRoute roles={['hr','admin']}><HRDashboard /></ProtectedRoute>} />
-        <Route path="/hr/jobs" element={<ProtectedRoute roles={['hr','admin']}><ManageJobs /></ProtectedRoute>} />
-        <Route path="/hr/jobs/create" element={<ProtectedRoute roles={['hr','admin']}><CreateJob /></ProtectedRoute>} />
-        <Route path="/hr/jobs/:id/edit" element={<ProtectedRoute roles={['hr','admin']}><EditJob /></ProtectedRoute>} />
-        <Route path="/hr/applications" element={<ProtectedRoute roles={['hr','admin']}><HRApplications /></ProtectedRoute>} />
-        <Route path="/hr/applications/:id" element={<ProtectedRoute roles={['hr','admin']}><HRAppDetail /></ProtectedRoute>} />
-        <Route path="/hr/interviews" element={<ProtectedRoute roles={['hr','admin']}><HRInterviews /></ProtectedRoute>} />
+        <Route path="/hr/dashboard" element={<ProtectedRoute roles={['hr', 'admin']}><HRDashboard /></ProtectedRoute>} />
+        <Route path="/hr/jobs" element={<ProtectedRoute roles={['hr', 'admin']}><ManageJobs /></ProtectedRoute>} />
+        <Route path="/hr/jobs/create" element={<ProtectedRoute roles={['hr', 'admin']}><CreateJob /></ProtectedRoute>} />
+        <Route path="/hr/jobs/:id/edit" element={<ProtectedRoute roles={['hr', 'admin']}><EditJob /></ProtectedRoute>} />
+        <Route path="/hr/applications" element={<ProtectedRoute roles={['hr', 'admin']}><HRApplications /></ProtectedRoute>} />
+        <Route path="/hr/applications/:id" element={<ProtectedRoute roles={['hr', 'admin']}><HRAppDetail /></ProtectedRoute>} />
+        <Route path="/hr/interviews" element={<ProtectedRoute roles={['hr', 'admin']}><HRInterviews /></ProtectedRoute>} />
 
         {/* admin */}
         <Route path="/admin/dashboard" element={<ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute>} />

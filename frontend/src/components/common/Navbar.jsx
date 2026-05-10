@@ -14,7 +14,7 @@ const Navbar = () => {
 
   return (
     <nav style={styles.nav}>
-      <Link to="/" style={styles.logo}>TalentFlow</Link>
+      <Link to="/" style={styles.logo}>TechVista Solutions</Link>
 
       <div style={styles.links}>
         <Link to="/jobs" style={styles.link}>Jobs</Link>
