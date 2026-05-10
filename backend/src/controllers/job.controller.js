@@ -5,11 +5,12 @@ const Branch = require('../models/branch.model');
 // @route   POST /api/jobs
 exports.createJob = async (req, res, next) => {
     try {
-        const { title, description, branch, availableSeats } = req.body;
+        const { title, description, department, branch, availableSeats } = req.body;
 
         const job = await Job.create({
             title,
             description,
+            department,
             branch,
             availableSeats
         });
@@ -34,6 +35,10 @@ exports.getJobs = async (req, res, next) => {
 
         if (req.query.title) {
             filter.title = { $regex: req.query.title, $options: 'i' };
+        }
+
+        if (req.query.department) {
+            filter.department = req.query.department;
         }
 
         const jobs = await Job.find(filter).populate('branch', 'name');
@@ -62,7 +67,7 @@ exports.getJobById = async (req, res, next) => {
 // @route   PUT /api/jobs/:id
 exports.updateJob = async (req, res, next) => {
     try {
-        const { title, description, branch, availableSeats } = req.body;
+        const { title, description, department, branch, availableSeats } = req.body;
         const job = await Job.findById(req.params.id);
 
         if (!job) {
@@ -72,6 +77,7 @@ exports.updateJob = async (req, res, next) => {
 
         if (title) job.title = title;
         if (description) job.description = description;
+        if (department) job.department = department;
         if (branch) job.branch = branch;
         if (availableSeats !== undefined) job.availableSeats = availableSeats;
 

@@ -12,8 +12,14 @@ const userRoutes = require('./routes/user.routes');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// CORS — deployment-ready: allows Vercel frontend URL in production, all origins in dev
+const corsOptions = {
+    origin: process.env.FRONTEND_URL || '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // API Routes
@@ -23,6 +29,11 @@ app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/interviews', interviewRoutes);
 app.use('/api/users', userRoutes);
+
+// Health check endpoint for deployment verification
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ success: true, message: 'TechVista ATS API is running', timestamp: new Date().toISOString() });
+});
 
 // Global Error Handler (Must be last)
 app.use(errorHandler);
