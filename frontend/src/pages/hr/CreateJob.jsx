@@ -6,7 +6,7 @@ import api from '../../utils/axios';
 const CreateJob = () => {
   const nav = useNavigate();
   const [branches, setBranches] = useState([]);
-  const [form, setForm] = useState({ title: '', description: '', branch: '', availableSeats: '' });
+  const [form, setForm] = useState({ title: '', description: '', department: '', branch: '', availableSeats: '' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -43,6 +43,10 @@ const CreateJob = () => {
           <div style={s.field}>
             <label style={s.label}>Description</label>
             <textarea name="description" required rows={5} value={form.description} onChange={onChange} placeholder="Describe the role, responsibilities, and requirements..." style={{ ...s.input, resize: 'vertical' }} />
+          </div>
+          <div style={s.field}>
+            <label style={s.label}>Department</label>
+            <input name="department" required value={form.department} onChange={onChange} placeholder="e.g. Engineering, Marketing, HR" style={s.input} />
           </div>
           <div style={s.row}>
             <div style={s.field}>
