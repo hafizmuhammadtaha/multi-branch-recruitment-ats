@@ -53,57 +53,6 @@ multi-branch-recruitment-ats/
 
 ---
 
-## 🗃 ER Diagram
-
-```mermaid
-erDiagram
-    USER {
-        ObjectId _id
-        String name
-        String email
-        String password
-        String role
-        String profilePicUrl
-    }
-
-    BRANCH {
-        ObjectId _id
-        String name
-    }
-
-    JOB {
-        ObjectId _id
-        String title
-        String description
-        String department
-        ObjectId branch
-        Number availableSeats
-    }
-
-    APPLICATION {
-        ObjectId _id
-        ObjectId candidate
-        ObjectId job
-        String resumeUrl
-        String coverLetterUrl
-        String status
-    }
-
-    INTERVIEW {
-        ObjectId _id
-        ObjectId application
-        Date date
-        String time
-        String message
-    }
-
-    USER ||--o{ APPLICATION : "applies"
-    JOB ||--o{ APPLICATION : "receives"
-    BRANCH ||--o{ JOB : "has"
-    APPLICATION ||--o{ INTERVIEW : "schedules"
-```
-
----
 
 ## 🔐 Roles & Permissions
 
