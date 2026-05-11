@@ -31,27 +31,34 @@ import HRInterviews from './pages/hr/Interviews';
 import AdminDashboard from './pages/admin/Dashboard';
 import Branches from './pages/admin/Branches';
 
+/**
+ * Main App component that orchestrates the entire recruitment ATS application.
+ * It provides authentication context, routing, and role-based access control
+ * for different user types: candidates, HR personnel, and administrators.
+ */
 const App = () => (
   <AuthProvider>
     <BrowserRouter>
+      {/* Toast notifications for user feedback */}
       <Toaster position="top-right" />
+      {/* Navigation bar visible across all pages */}
       <Navbar />
       <Routes>
-        {/* public */}
+        {/* Public routes accessible without authentication */}
         <Route path="/" element={<Home />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/jobs/:id" element={<JobDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* candidate */}
+        {/* Candidate-specific routes requiring candidate role */}
         <Route path="/dashboard" element={<ProtectedRoute roles={['candidate']}><CandidateDashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute roles={['candidate', 'hr', 'admin']}><Profile /></ProtectedRoute>} />
         <Route path="/my-applications" element={<ProtectedRoute roles={['candidate']}><MyApplications /></ProtectedRoute>} />
         <Route path="/my-applications/:id" element={<ProtectedRoute roles={['candidate']}><AppDetail /></ProtectedRoute>} />
         <Route path="/my-interviews" element={<ProtectedRoute roles={['candidate']}><MyInterviews /></ProtectedRoute>} />
 
-        {/* hr */}
+        {/* HR routes for managing jobs, applications, and interviews */}
         <Route path="/hr/dashboard" element={<ProtectedRoute roles={['hr', 'admin']}><HRDashboard /></ProtectedRoute>} />
         <Route path="/hr/jobs" element={<ProtectedRoute roles={['hr', 'admin']}><ManageJobs /></ProtectedRoute>} />
         <Route path="/hr/jobs/create" element={<ProtectedRoute roles={['hr', 'admin']}><CreateJob /></ProtectedRoute>} />
@@ -60,10 +67,11 @@ const App = () => (
         <Route path="/hr/applications/:id" element={<ProtectedRoute roles={['hr', 'admin']}><HRAppDetail /></ProtectedRoute>} />
         <Route path="/hr/interviews" element={<ProtectedRoute roles={['hr', 'admin']}><HRInterviews /></ProtectedRoute>} />
 
-        {/* admin */}
+        {/* Admin routes for system-wide management */}
         <Route path="/admin/dashboard" element={<ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute>} />
         <Route path="/admin/branches" element={<ProtectedRoute roles={['admin']}><Branches /></ProtectedRoute>} />
 
+        {/* Fallback route to redirect unknown paths to home */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
